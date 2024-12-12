@@ -1,0 +1,46 @@
+name: React CI/CD
+
+on:
+  push:
+    branches:
+      - main # Run workflow when code is pushed to the main branch
+  pull_request:
+    branches:
+      - main # Run workflow on pull requests to the main branch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "16"
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Run Tests
+        run: npm test -- --watchAll=false
+
+      - name: Build Project
+        run: npm run build
+
+  deploy:
+    needs: build # Wait for build job to finish
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Deploy to Vercel
+        env:
+          VERCEL_TOKEN: KhaywaUc2nlsfANlrGoyZkSp
+        run: |
+          npm install -g vercel
+          vercel --prod --token=$VERCEL_TOKEN --confirm
